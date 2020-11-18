@@ -1,6 +1,6 @@
 """The top-level Dogma package."""
 
 from .game import DogmaGame
-from .players import BasePlayer, RandomPlayer
+from .player import Player
 
-__all__ = ["BasePlayer", "DogmaGame", "RandomPlayer"]
+__all__ = ["Player", "DogmaGame"]
