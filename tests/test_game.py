@@ -114,6 +114,25 @@ def test_set_next_dean_loop_around(game):
 
 
 @given(game=games())
+def test_get_players_for_nomination(game):
+    """Test that a game instance only offers the correct players to be
+    nominated."""
+
+    game.dean, game.ex_dean, game.ex_editor = game.players[:3]
+    potential_nominees = game._get_players_for_nomination()
+
+    assert sum(p.denounced for p in potential_nominees) == 0
+    assert sorted(set(potential_nominees), key=lambda p: p.name) == sorted(
+        potential_nominees, key=lambda p: p.name
+    )
+
+    assert game.dean not in potential_nominees
+    assert game.ex_editor not in potential_nominees
+    if len(game.players) == 6:
+        assert game.ex_dean not in potential_nominees
+
+
+@given(game=games())
 def test_form_print_team(game):
     """Test that a game instance can request a nomination from their dean."""
 
@@ -229,6 +248,25 @@ def test_perform_emergency_actions_peek(game):
     assert game.journal_cards == cards
     assert game.dean.seen == cards[:3]
     assert game.overrule_available is False
+
+
+@given(game=games())
+def test_get_players_for_denouncement(game):
+    """Test that a game instance only offers the correct players for
+    denouncement."""
+
+    game.dean = game.players[0]
+    for player in game.players[-2:]:
+        player.denounced = True
+
+    potential_denouncees = game._get_players_for_denouncement()
+
+    assert game.dean not in potential_denouncees
+    assert sum(p.denounced for p in potential_denouncees) == 0
+    assert set(potential_denouncees) == set(game.players[1:-2])
+    assert sorted(set(potential_denouncees), key=lambda p: p.name) == sorted(
+        potential_denouncees, key=lambda p: p.name
+    )
 
 
 @given(game=games())

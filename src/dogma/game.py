@@ -73,14 +73,27 @@ class DogmaGame:
         if self.dean.denounced:
             self.set_next_dean()
 
+    def _get_players_for_nomination(self):
+        """Get the players that can be nominated."""
+
+        if len(self.players) == 5:
+            return tuple(
+                p
+                for p in self.players
+                if p not in (self.dean, self.ex_editor) and not p.denounced
+            )
+
+        return tuple(
+            p
+            for p in self.players
+            if p not in (self.dean, self.ex_dean, self.ex_editor)
+            and not p.denounced
+        )
+
     def form_print_team(self):
         """Get a nomination from the dean for an editor."""
 
-        nomination = self.dean.nominate(
-            self.players,
-            self.ex_dean,
-            self.ex_editor,
-        )
+        nomination = self.dean.nominate(self._get_players_for_nomination())
 
         return nomination
 
@@ -158,6 +171,13 @@ class DogmaGame:
         self.last_successfully_published = None
         self.pressure_to_print = 0
 
+    def _get_players_for_denouncement(self):
+        """Get the players that can be denounced."""
+
+        return tuple(
+            p for p in self.players if p is not self.dean and not p.denounced
+        )
+
     def perform_emergency_actions(self):
         """As things become more desperate for the conformists, special powers
         are given to the sitting print team:
@@ -179,7 +199,7 @@ class DogmaGame:
             self.dean.seen = cards
 
         if self.publications["H"] in [4, 5]:
-            player = self.dean.denounce(self.players)
+            player = self.dean.denounce(self._get_players_for_denouncement())
             player.denounced = True
             if self.galileo_denounced_win():
                 return True

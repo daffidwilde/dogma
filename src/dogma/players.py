@@ -20,14 +20,6 @@ class BasePlayer:
         class_name = self.__class__.__name__
         return f"{class_name}({self.name}, {self.role}, {self.denounced})"
 
-    def _get_choices_for_nomination(self, players, ex_dean, ex_editor):
-        """Get the players can be nominated."""
-
-        if len(players) == 5:
-            return tuple(p for p in players if p not in (self, ex_editor))
-
-        return tuple(p for p in players if p not in (self, ex_dean, ex_editor))
-
     @abc.abstractmethod
     def nominate(self, players, ex_dean, ex_editor):
         """Placeholder for nominating an editor as dean."""
@@ -54,12 +46,10 @@ class BasePlayer:
 class RandomPlayer(BasePlayer):
     """A player who does everything at random."""
 
-    def nominate(self, players, ex_dean, ex_editor):
-        """Nominate an editor at random."""
+    def nominate(self, players):
+        """Nominate an editor at random from the given players."""
 
-        return random.choice(
-            self._get_choices_for_nomination(players, ex_dean, ex_editor)
-        )
+        return random.choice(players)
 
     def vote(self, nominee):
         """Cast a vote at random."""
@@ -84,6 +74,7 @@ class RandomPlayer(BasePlayer):
         return random.choice((True, False))
 
     def denounce(self, players):
-        """Choose a random player to remove from the game."""
+        """Choose a random player to remove from the game from those
+        presented."""
 
-        return random.choice([p for p in players if p is not self])
+        return random.choice(players)

@@ -34,28 +34,6 @@ def test_base_repr(name):
     assert representation == f"BasePlayer({name}, None, False)"
 
 
-@given(seed=seeds)
-def test_base_get_choices_for_nomination(seed):
-    """Test that the player will select a nominee from the correct pool."""
-
-    state = random.Random(seed)
-    number_of_players = state.choice((5, 6))
-    players_ = [BasePlayer(i) for i in range(number_of_players)]
-
-    player, ex_dean, ex_editor = players_[:3]
-    choices = player._get_choices_for_nomination(players_, ex_dean, ex_editor)
-
-    assert player not in choices
-    assert ex_editor not in choices
-
-    if number_of_players == 5:
-        assert len(choices) == number_of_players - 2
-
-    else:
-        assert len(choices) == number_of_players - 3
-        assert ex_dean not in choices
-
-
 @given(seed=seeds, players_=players())
 def test_random_nominate(seed, players_):
     """Test that a random player nominates successfully."""
@@ -63,11 +41,9 @@ def test_random_nominate(seed, players_):
     random.seed(seed)
 
     player, ex_dean, ex_editor = players_[:3]
-    nomination = player.nominate(players_, ex_dean, ex_editor)
+    nomination = player.nominate(players_[3:])
 
-    assert nomination not in (player, ex_editor)
-    if len(players_) == 6:
-        assert nomination is not ex_dean
+    assert nomination not in (player, ex_dean, ex_editor)
 
 
 @given(name=text(), seed=seeds)
@@ -111,7 +87,7 @@ def test_random_denounce(seed, players_):
 
     random.seed(seed)
     player = players_[0]
-    denounced_player = player.denounce(players_)
+    denounced_player = player.denounce(players_[1:])
 
-    assert denounced_player in players_
+    assert denounced_player in players_[1:]
     assert denounced_player is not player
