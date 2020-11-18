@@ -1,0 +1,16 @@
+name: dogma
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - hypothesis
+  - pytest
+  - pip
+  - pip:
+    - -e .
+    - black
+    - flake8
+    - isort
+    - pygame
+    - pytest-cov
